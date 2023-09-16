@@ -1,7 +1,14 @@
 package ppp.mess;
 
 import java.util.List;
+import java.util.stream.Collectors;
+
+import org.springframework.hateoas.CollectionModel;
+import org.springframework.hateoas.EntityModel;
 import org.springframework.web.bind.annotation.*;
+
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @RestController
 class Controller {
@@ -13,19 +20,29 @@ class Controller {
         this.usersRepo = usersRepo;
         this.mesasRepo = mesasRepo;
     }
+/// Usuarios ///
 
     @GetMapping("/users")
-    List<Users> all(){
-        return usersRepo.findAll();
-    }
+    CollectionModel<EntityModel<Users>> all() {
+        List<EntityModel<Users>> userEntities = usersRepo.findAll().stream()
+            .map(user -> EntityModel.of(user,
+                    linkTo(methodOn(Controller.class).one(user.getId())).withSelfRel(),
+                    linkTo(methodOn(Controller.class).all()).withRel("users")))
+            .collect(Collectors.toList());
+        return CollectionModel.of(userEntities, linkTo(methodOn(Controller.class).all()).withSelfRel());
+}
+
     @PostMapping("/users")
     Users newUsers(@RequestBody Users newUsers) {
         return usersRepo.save(newUsers);
     }
     @GetMapping("/users/{id}")
-    Users one(@PathVariable Long id) {
-        return usersRepo.findById(id)
+    EntityModel<Users> one(@PathVariable Long id){
+        Users user = usersRepo.findById(id)
                 .orElseThrow(() -> new UserNotFound(id));
+        return EntityModel.of(user,
+                linkTo(methodOn(Controller.class).one(id)).withSelfRel(),
+                linkTo(methodOn(Controller.class).all()).withRel("users"));
     }
     @PutMapping("/users/{id}")
     Users replaceUsers(@RequestBody Users newUsers,@PathVariable Long id) {
@@ -45,6 +62,9 @@ class Controller {
     void deleteUsers(@PathVariable Long id) {
         usersRepo.deleteById(id);
     }
+
+
+    /// Mesas ///
     @GetMapping("/mesas")
     List<Mesas> allMesas() {
         return mesasRepo.findAll();

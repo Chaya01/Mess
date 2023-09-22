@@ -8,9 +8,9 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 class UserNotFoundADV {
 
     @ResponseBody
-    @ExceptionHandler(UserNotFound.class)
+    @ExceptionHandler(RestaurantNotFound.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    String UserNotFoundHandler(UserNotFound ex) {
+    String RestaurantNotFoundHandler(RestaurantNotFound ex) {
         return ex.getMessage();
     }
 }

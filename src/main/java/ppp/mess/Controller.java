@@ -15,12 +15,26 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 class Controller {
 
     // Se inicializan repositorios para usuarios y mesas en el constructor del controlador.
-    private final UsersRepo usersRepo;
+    private final RestaurantRepo restaurantRepo;
     private final MesasRepo mesasRepo;
+    private final BranchesRepo branchesRepo;
+    private final DishesRepo dishesrepo;
+    private final OrderRepo orderRepo;
+    private final PhotoRepo photoRepo;
+    private final StatusRepo statusRepo;
+    private final WaiterRepo waiterRepo;
 
-    Controller(UsersRepo usersRepo, MesasRepo mesasRepo){
-        this.usersRepo = usersRepo;
+    public Controller(RestaurantRepo restaurantRepo, MesasRepo mesasRepo, BranchesRepo branchesRepo,
+                      DishesRepo dishesrepo, OrderRepo orderRepo, PhotoRepo photoRepo,
+                      StatusRepo statusRepo, WaiterRepo waiterRepo) {
+        this.restaurantRepo = restaurantRepo;
         this.mesasRepo = mesasRepo;
+        this.branchesRepo = branchesRepo;
+        this.dishesrepo = dishesrepo;
+        this.orderRepo = orderRepo;
+        this.photoRepo = photoRepo;
+        this.statusRepo = statusRepo;
+        this.waiterRepo = waiterRepo;
     }
 
     // Métodos para operaciones relacionadas con usuarios.
@@ -28,9 +42,9 @@ class Controller {
 
     // Este método maneja las solicitudes GET a "/users" y devuelve una colección de usuarios.
     @GetMapping("/users")
-    CollectionModel<EntityModel<Users>> all() {
+    CollectionModel<EntityModel<Restaurant>> all() {
         // Consulta todos los usuarios, los convierte en EntityModel y los agrega a una lista.
-        List<EntityModel<Users>> userEntities = usersRepo.findAll().stream()
+        List<EntityModel<Restaurant>> userEntities = restaurantRepo.findAll().stream()
                 .map(user -> EntityModel.of(user,
                         linkTo(methodOn(Controller.class).one(user.getId())).withSelfRel(),
                         linkTo(methodOn(Controller.class).all()).withRel("users")))
@@ -41,16 +55,16 @@ class Controller {
 
     // Este método maneja las solicitudes POST a "/users" y crea un nuevo usuario.
     @PostMapping("/users")
-    Users newUsers(@RequestBody Users newUsers) {
-        return usersRepo.save(newUsers);
+    Restaurant newUsers(@RequestBody Restaurant newRestaurant) {
+        return restaurantRepo.save(newRestaurant);
     }
 
     // Este método maneja las solicitudes GET a "/users/{id}" y devuelve un usuario específico.
     @GetMapping("/users/{id}")
-    EntityModel<Users> one(@PathVariable Long id){
+    EntityModel<Restaurant> one(@PathVariable Long id){
         // Busca un usuario por su ID, lanza una excepción si no se encuentra.
-        Users user = usersRepo.findById(id)
-                .orElseThrow(() -> new UserNotFound(id));
+        Restaurant user = restaurantRepo.findById(id)
+                .orElseThrow(() -> new RestaurantNotFound(id));
         // Devuelve el usuario como EntityModel con enlaces relacionados.
         return EntityModel.of(user,
                 linkTo(methodOn(Controller.class).one(id)).withSelfRel(),
@@ -59,24 +73,24 @@ class Controller {
 
     // Este método maneja las solicitudes PUT a "/users/{id}" y actualiza un usuario existente.
     @PutMapping("/users/{id}")
-    Users replaceUsers(@RequestBody Users newUsers,@PathVariable Long id) {
-        return usersRepo.findById(id)
-                .map(users -> {
+    Restaurant replaceUsers(@RequestBody Restaurant newRestaurant, @PathVariable Long id) {
+        return restaurantRepo.findById(id)
+                .map(restaurant -> {
                     // Actualiza el nombre y el correo electrónico del usuario y lo guarda.
-                    users.setName(newUsers.getName());
-                    users.setEmail(newUsers.getEmail());
-                    return usersRepo.save(users);
+                    restaurant.setName(newRestaurant.getName());
+                    restaurant.setEmail(newRestaurant.getEmail());
+                    return restaurantRepo.save(restaurant);
                 })
                 .orElseGet(() -> {
-                    newUsers.setId(id);
-                    return usersRepo.save(newUsers);
+                    newRestaurant.setId(id);
+                    return restaurantRepo.save(newRestaurant);
                 });
     }
 
     // Este método maneja las solicitudes DELETE a "/users/{id}" y elimina un usuario por su ID.
     @DeleteMapping("/users/{id}")
     void deleteUsers(@PathVariable Long id) {
-        usersRepo.deleteById(id);
+        restaurantRepo.deleteById(id);
     }
 
 //    @GetMapping("/mesas/{id}")
@@ -91,8 +105,8 @@ class Controller {
     Mesas replaceMesa(@RequestBody Mesas newMesa, @PathVariable Long id) {
         return mesasRepo.findById(id)
                 .map(mesa -> {
-                    mesa.setName(newMesa.getName());
-                    mesa.setContenido(newMesa.getContenido());
+                    mesa.setNumber(newMesa.getNumber());
+                    mesa.setCapacity(newMesa.getCapacity());
                     return mesasRepo.save(mesa);
                 })
                 .orElseGet(() -> {

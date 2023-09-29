@@ -2,11 +2,14 @@ package ppp.mess;
 
 import jakarta.persistence.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 class Restaurant {
 
     @Id @GeneratedValue
-    private Long id;
+    private Long idRestaurant;
     private String name;
     private String email;
     private String phone;
@@ -23,13 +26,16 @@ class Restaurant {
         this.pswd = pswd;
         this.owner = owner;
     }
+    @OneToMany(mappedBy = "restaurant", cascade = CascadeType.ALL)
+    private List<Branches> branches = new ArrayList<>();
+    //create a list that contains all the branches of the restaurant
 
-    public Long getId() {
-        return id;
+    public Long getIdRestaurant() {
+        return idRestaurant;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public void setIdRestaurant(Long id) {
+        this.idRestaurant = id;
     }
 
     public String getName() {
@@ -106,11 +112,11 @@ class Mesas {
     private String capacity;
     private Boolean split;
     private Boolean avariable;
-    @OneToOne
-    @PrimaryKeyJoinColumn(name="branches_id") // tabla e id a la que hace referencia
+    @ManyToOne
+    @JoinColumn(name="branches_id") // tabla e id a la que hace referencia
     private Branches branch;
-    @OneToOne
-    @PrimaryKeyJoinColumn(name="restaurant_id") // tabla a la que hace referencia
+    @ManyToOne
+    @JoinColumn(name="restaurant_id") // tabla a la que hace referencia
     private Restaurant restaurant;
 
     public Mesas(String number, String capacity, Boolean split, Boolean avariable) {
@@ -187,16 +193,23 @@ class Branches {
     private Long id;
     private String name;
     private String adress;
-    @OneToOne
-    @PrimaryKeyJoinColumn(name="restaurant_id")
+    @ManyToOne
+    @JoinColumn(name="restaurant_id")
     private Restaurant restaurant;
     public Branches(Long id, String name, String adress) {
         this.id = id;
         this.name = name;
         this.adress = adress;
     }
+
+    @OneToMany(mappedBy = "branch", cascade = CascadeType.ALL)
+    private List<Mesas> mesas = new ArrayList<>();
     public Long getId() {
         return id;
+    }
+
+    public void setRestaurant(Restaurant restaurant) {
+        this.restaurant = restaurant;
     }
 
     public void setId(Long id) {
@@ -314,13 +327,13 @@ class Order{
 class Dishes{
     @Id @GeneratedValue
     private Long id;
-    @OneToOne @PrimaryKeyJoinColumn(name="restaurant_id")
+    @OneToOne @JoinColumn(name="restaurant_id")
     private Restaurant restaurant;
     private String name;
     private String description;
     private String ingredients;
     private Boolean avariable;
-    @OneToOne @PrimaryKeyJoinColumn(name="photo_id")
+    @OneToOne @JoinColumn(name="photo_id")
     private Photo photo;
 
     public Dishes(Long id, String name, String description, String ingredients, Boolean avariable) {
@@ -363,7 +376,7 @@ class Dishes{
         this.ingredients = ingredients;
     }
 
-    public boolean isAvariable() {
+    public boolean getAvariable() {
         return avariable;
     }
 
@@ -376,7 +389,7 @@ class Dishes{
 class Photo{
     @Id @GeneratedValue
     private Long id;
-    @OneToOne @PrimaryKeyJoinColumn(name="restaurant_id")
+    @OneToOne @JoinColumn(name="restaurant_id")
     private Restaurant restaurant;
     private String name;
     private String url;

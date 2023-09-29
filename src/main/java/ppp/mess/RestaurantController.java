@@ -12,11 +12,10 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 // El siguiente bloque define un controlador Spring Boot para manejar las solicitudes relacionadas con usuarios y mesas.
 @RestController
-class Controller {
+class RestaurantController {
 
     // Se inicializan repositorios para usuarios y mesas en el constructor del controlador.
     private final RestaurantRepo restaurantRepo;
-    private final MesasRepo mesasRepo;
     private final BranchesRepo branchesRepo;
     private final DishesRepo dishesrepo;
     private final OrderRepo orderRepo;
@@ -24,11 +23,10 @@ class Controller {
     private final StatusRepo statusRepo;
     private final WaiterRepo waiterRepo;
 
-    public Controller(RestaurantRepo restaurantRepo, MesasRepo mesasRepo, BranchesRepo branchesRepo,
-                      DishesRepo dishesrepo, OrderRepo orderRepo, PhotoRepo photoRepo,
-                      StatusRepo statusRepo, WaiterRepo waiterRepo) {
+    public RestaurantController(RestaurantRepo restaurantRepo, BranchesRepo branchesRepo,
+                                DishesRepo dishesrepo, OrderRepo orderRepo, PhotoRepo photoRepo,
+                                StatusRepo statusRepo, WaiterRepo waiterRepo) {
         this.restaurantRepo = restaurantRepo;
-        this.mesasRepo = mesasRepo;
         this.branchesRepo = branchesRepo;
         this.dishesrepo = dishesrepo;
         this.orderRepo = orderRepo;
@@ -46,11 +44,11 @@ class Controller {
         // Consulta todos los usuarios, los convierte en EntityModel y los agrega a una lista.
         List<EntityModel<Restaurant>> userEntities = restaurantRepo.findAll().stream()
                 .map(user -> EntityModel.of(user,
-                        linkTo(methodOn(Controller.class).one(user.getId())).withSelfRel(),
-                        linkTo(methodOn(Controller.class).all()).withRel("users")))
+                        linkTo(methodOn(RestaurantController.class).one(user.getIdRestaurant())).withSelfRel(),
+                        linkTo(methodOn(RestaurantController.class).all()).withRel("users")))
                 .collect(Collectors.toList());
         // Devuelve la colección de usuarios con enlaces relacionados.
-        return CollectionModel.of(userEntities, linkTo(methodOn(Controller.class).all()).withSelfRel());
+        return CollectionModel.of(userEntities, linkTo(methodOn(RestaurantController.class).all()).withSelfRel());
     }
 
     // Este método maneja las solicitudes POST a "/users" y crea un nuevo usuario.
@@ -61,14 +59,14 @@ class Controller {
 
     // Este método maneja las solicitudes GET a "/users/{id}" y devuelve un usuario específico.
     @GetMapping("/users/{id}")
-    EntityModel<Restaurant> one(@PathVariable Long id){
+    EntityModel<Restaurant> one(@PathVariable Long id) {
         // Busca un usuario por su ID, lanza una excepción si no se encuentra.
         Restaurant user = restaurantRepo.findById(id)
                 .orElseThrow(() -> new RestaurantNotFound(id));
         // Devuelve el usuario como EntityModel con enlaces relacionados.
         return EntityModel.of(user,
-                linkTo(methodOn(Controller.class).one(id)).withSelfRel(),
-                linkTo(methodOn(Controller.class).all()).withRel("users"));
+                linkTo(methodOn(RestaurantController.class).one(id)).withSelfRel(),
+                linkTo(methodOn(RestaurantController.class).all()).withRel("users"));
     }
 
     // Este método maneja las solicitudes PUT a "/users/{id}" y actualiza un usuario existente.
@@ -82,7 +80,7 @@ class Controller {
                     return restaurantRepo.save(restaurant);
                 })
                 .orElseGet(() -> {
-                    newRestaurant.setId(id);
+                    newRestaurant.setIdRestaurant(id);
                     return restaurantRepo.save(newRestaurant);
                 });
     }
@@ -92,32 +90,5 @@ class Controller {
     void deleteUsers(@PathVariable Long id) {
         restaurantRepo.deleteById(id);
     }
-
-//    @GetMapping("/mesas/{id}")
-//    Mesas oneMesa(@PathVariable Long id) {
-//        return mesasRepo.findById(id)
-//                .orElseThrow(() -> new MesaNotFound(id));
-//    }
-    //Falta crear los mensajes de not found
-    //Refactorizar como una funcion general para no crear una funcion por tabla.
-
-    @PutMapping("/mesas/{id}")
-    Mesas replaceMesa(@RequestBody Mesas newMesa, @PathVariable Long id) {
-        return mesasRepo.findById(id)
-                .map(mesa -> {
-                    mesa.setNumber(newMesa.getNumber());
-                    mesa.setCapacity(newMesa.getCapacity());
-                    return mesasRepo.save(mesa);
-                })
-                .orElseGet(() -> {
-                    newMesa.setId(id);
-                    return mesasRepo.save(newMesa);
-                });
-    }
-
-    @DeleteMapping("/mesas/{id}")
-    void deleteMesa(@PathVariable Long id) {
-        mesasRepo.deleteById(id);
-    }
-
 }
+

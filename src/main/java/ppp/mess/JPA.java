@@ -336,6 +336,9 @@ class Dishes{
     @OneToOne @JoinColumn(name="photo_id")
     private Photo photo;
 
+    public Dishes() {
+
+    }
     public Dishes(Long id, String name, String description, String ingredients, Boolean avariable) {
         this.id = id;
         this.name = name;
@@ -343,6 +346,9 @@ class Dishes{
         this.ingredients = ingredients;
         this.avariable = avariable;
     }
+
+
+
 
     public Long getId() {
         return id;
@@ -394,6 +400,9 @@ class Photo{
     private String name;
     private String url;
 
+    public Photo() {
+
+    }
     public Photo(Long id, String name, String url) {
         this.id = id;
         this.name = name;

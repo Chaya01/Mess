@@ -29,6 +29,7 @@ class DishController {
 
     @PostMapping("/dishes")
     public Dishes newDish(@RequestBody Dishes newDish) {
+        System.out.println();
         return dishesRepo.save(newDish);
     }
     @GetMapping("dishes/{id}")

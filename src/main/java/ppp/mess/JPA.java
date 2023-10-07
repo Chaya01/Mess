@@ -17,7 +17,7 @@ class Restaurant {
     private String pswd;
     private String owner;
 
-    Restaurant(){}
+    public Restaurant(){}
     Restaurant(String name, String email, String phone, String rut, String pswd, String owner){
         this.name = name;
         this.email = email;
@@ -188,6 +188,7 @@ class Mesas {
 }
 @Entity
 class Branches {
+
     @Id
     @GeneratedValue
     private Long id;
@@ -196,14 +197,15 @@ class Branches {
     @ManyToOne
     @JoinColumn(name="restaurant_id")
     private Restaurant restaurant;
+
+    public Branches() {
+    }
     public Branches(Long id, String name, String adress) {
         this.id = id;
         this.name = name;
         this.adress = adress;
     }
-    Branches() {
 
-    }
     @OneToMany(mappedBy = "branch", cascade = CascadeType.ALL)
     private List<Mesas> mesas = new ArrayList<>();
     public Long getId() {

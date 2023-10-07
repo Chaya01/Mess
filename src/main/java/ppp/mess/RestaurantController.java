@@ -39,7 +39,7 @@ class RestaurantController {
     /// Usuarios ///
 
     // Este método maneja las solicitudes GET a "/users" y devuelve una colección de usuarios.
-    @GetMapping("/users")
+    @GetMapping("/restaurant")
     CollectionModel<EntityModel<Restaurant>> all() {
         // Consulta todos los usuarios, los convierte en EntityModel y los agrega a una lista.
         List<EntityModel<Restaurant>> userEntities = restaurantRepo.findAll().stream()
@@ -52,13 +52,13 @@ class RestaurantController {
     }
 
     // Este método maneja las solicitudes POST a "/users" y crea un nuevo usuario.
-    @PostMapping("/users")
+    @PostMapping("/restaurant")
     Restaurant newUsers(@RequestBody Restaurant newRestaurant) {
         return restaurantRepo.save(newRestaurant);
     }
 
     // Este método maneja las solicitudes GET a "/users/{id}" y devuelve un usuario específico.
-    @GetMapping("/users/{id}")
+    @GetMapping("/restaurant/{id}")
     EntityModel<Restaurant> one(@PathVariable Long id) {
         // Busca un usuario por su ID, lanza una excepción si no se encuentra.
         Restaurant user = restaurantRepo.findById(id)
@@ -70,7 +70,7 @@ class RestaurantController {
     }
 
     // Este método maneja las solicitudes PUT a "/users/{id}" y actualiza un usuario existente.
-    @PutMapping("/users/{id}")
+    @PutMapping("/restaurant/{id}")
     Restaurant replaceUsers(@RequestBody Restaurant newRestaurant, @PathVariable Long id) {
         return restaurantRepo.findById(id)
                 .map(restaurant -> {
@@ -86,8 +86,8 @@ class RestaurantController {
     }
 
     // Este método maneja las solicitudes DELETE a "/users/{id}" y elimina un usuario por su ID.
-    @DeleteMapping("/users/{id}")
-    void deleteUsers(@PathVariable Long id) {
+    @DeleteMapping("/restaurant/{id}")
+    void deleteRestaurant(@PathVariable Long id) {
         restaurantRepo.deleteById(id);
     }
 }

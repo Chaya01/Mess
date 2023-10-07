@@ -2,6 +2,7 @@ package ppp.mess;
 
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -43,39 +44,29 @@ class branchController {
                 linkTo(methodOn(branchController.class).all()).withRel("branches"));
     }
     @PutMapping("branches/{id}")
-    public Branches replaceBranch(@RequestBody Branches newBranch, @PathVariable Long id, @RequestParam Long restaurantId) {
-        return branchesRepo.findById(id)
-                .map(branch -> {
-                    branch.setName(newBranch.getName());
-                    branch.setAdress(newBranch.getAdress());
+    public ResponseEntity<Branches> replaceBranch(@RequestBody Branches newBranch, @PathVariable Long id, @RequestParam Long restaurantId) {
+        Optional<Branches> existingBranch = branchesRepo.findById(id);
 
-                    // Obtener el restaurante por su ID
-                    Optional<Restaurant> restaurant = RestaurantRepo.findById(restaurantId);
-                    if (restaurant.isPresent()) {
-                        branch.setRestaurant(restaurant.get());
-                    } else {
-                        // Manejo de error si no se encuentra el restaurante
-                        // Puedes lanzar una excepción o manejarlo de otra manera
-                    }
+        if (existingBranch.isPresent()) {
+            Branches branch = existingBranch.get();
 
-                    // También puedes manejar la actualización de otras relaciones si es necesario
+            // Actualiza los campos de la sucursal
+            branch.setName(newBranch.getName());
+            branch.setAdress(newBranch.getAdress());
 
-                    return branchesRepo.save(branch);
-                })
-                .orElseGet(() -> {
-                    newBranch.setId(id); // Configurar la ID en caso de crear una nueva rama
+            // Verifica si el restaurante especificado existe
+            Optional<Restaurant> restaurant = RestaurantRepo.findById(restaurantId);
 
-                    // Obtener el restaurante por su ID
-                    Optional<Restaurant> restaurant = RestaurantRepo.findById(restaurantId);
-                    if (restaurant.isPresent()) {
-                        newBranch.setRestaurant(restaurant.get());
-                    } else {
-                        // Manejo de error si no se encuentra el restaurante
-                        // Puedes lanzar una excepción o manejarlo de otra manera
-                    }
-
-                    return branchesRepo.save(newBranch);
-                });
+            if (restaurant.isPresent()) {
+                branch.setRestaurant(restaurant.get());
+                branchesRepo.save(branch);
+                return ResponseEntity.ok(branch);
+            } else {
+                return ResponseEntity.badRequest().body(newBranch); // Cambiado a devolver la sucursal actualizada
+            }
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
     @DeleteMapping("branches/{id}")
     public void deleteBranch(@PathVariable Long id) {

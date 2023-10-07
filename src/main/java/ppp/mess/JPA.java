@@ -201,7 +201,9 @@ class Branches {
         this.name = name;
         this.adress = adress;
     }
+    Branches() {
 
+    }
     @OneToMany(mappedBy = "branch", cascade = CascadeType.ALL)
     private List<Mesas> mesas = new ArrayList<>();
     public Long getId() {

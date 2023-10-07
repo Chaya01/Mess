@@ -325,7 +325,8 @@ class Order{
 
 @Entity
 class Dishes{
-    @Id @GeneratedValue
+    @Id
+    @GeneratedValue
     private Long id;
     @OneToOne @JoinColumn(name="restaurant_id")
     private Restaurant restaurant;
